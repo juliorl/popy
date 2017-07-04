@@ -2,7 +2,11 @@
 #### Simple fixed income portfolio tools in Python
 ___
 
+<<<<<<< HEAD
 ####Functions
+=======
+#####Functions
+>>>>>>> e37bdc3be9039186d5bce7d62eb8ec97d84c21a1
 
 *read_portfolio (excelFile, excelSheet)*
 
