@@ -7,18 +7,18 @@ import pandas as pd
 import QuantLib as ql
 
 def read_portfolio(excelFile, excelSheet):
-    """ Load an Excel sheet with securities.
-        Takes 'excelFile' and 'excelSheet' with the following columns:
-        issueCode, couponRate, maturityDate, tradeDate, lastCoupon, couponPeriod,
-        faceValue, YTM, currency, account. Order is important, starting at R0C0.
-        Returns a 'portfolio' pandas dataframe.
+    """ Returns a 'portfolio' pandas dataframe.
+    Load an Excel sheet with securities. Takes 'excelFile' and 'excelSheet' with columns:
+    issueCode, couponRate, maturityDate, tradeDate, lastCoupon, couponPeriod,
+    faceValue, YTM, currency, account. Order is important, starting at R0C0.
     """
     portfolio = pd.read_excel(excelFile,excelSheet,dtype={'Issue':'str','Face value':'int'})
     return portfolio
 
 def read_security(x):
-    """ Read 'x' line from "portfolio" dataframe and set up variables.
-        Returns a 'security' dict with security x's info.
+    """ Returns a 'security' dict.
+    Reads security in position 'x' from "portfolio" dataframe.
+
     """
     # read line from excelSheet in excelFile
     issueCode = portfolio['issueCode'][x]
@@ -59,9 +59,8 @@ def read_security(x):
     return security # returns a dict
 
 def generate_cashflows(lastCoupon, maturityDate, couponPeriod, couponRate, faceValue):
-    """ Generates cashflows and, of course, dates of said cashflows for securities.
+    """ Returns a 'cashflows' pandas dataframe with dates and payments.
         ONLY FIXED RATE BONDS supported, at the moment.
-        Returns a 'cashflows' pandas dataframe with dates and payments.
     """
     # these are constants used for building a QL schedule and a QL fixedRateBond object
     CALENDAR = ql.Argentina()
@@ -90,3 +89,16 @@ def generate_cashflows(lastCoupon, maturityDate, couponPeriod, couponRate, faceV
     cashflows.payments = cashflows.payments.astype(int) # change payments column into integer
 
     return cashflows # this returns a Pandas dataframe
+
+    def write_results (outputFile):
+    """ Writes cashflow of a security in 'outputFile' Excel file.
+    Also converts QuantLib dates to timestamp, and removes hours and keeps sonly dates.
+    """
+    outputSheet = security['issueCode']
+    securityCashflow = security['cashflow'] # unwrap the cashflow dataframe from dict
+    # convert QuantLib date objects in dataframe to pandas time stamps
+    for i in securityCashflow.index:
+        securityCashflow['dates'][i] = pd.to_datetime(str(securityCashflow['dates'][i]))
+    # keep only dates (drop time) from pandas dataframe field
+    securityCashflow['dates'] = securityCashflow['dates'].dt.date
+    securityCashflow.to_excel(outputFile, sheet_name = outputSheet,index = False)
