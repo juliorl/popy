@@ -18,7 +18,6 @@ def read_portfolio(excelFile, excelSheet):
 def read_security(x):
     """ Returns a 'security' dict.
     Reads security in position 'x' from "portfolio" dataframe.
-
     """
     # read line from excelSheet in excelFile
     issueCode = portfolio['issueCode'][x]
@@ -101,4 +100,6 @@ def generate_cashflows(lastCoupon, maturityDate, couponPeriod, couponRate, faceV
         securityCashflow['dates'][i] = pd.to_datetime(str(securityCashflow['dates'][i]))
     # keep only dates (drop time) from pandas dataframe field
     securityCashflow['dates'] = securityCashflow['dates'].dt.date
-    securityCashflow.to_excel(outputFile, sheet_name = outputSheet,index = False)
+    writer = pd.ExcelWriter(outputFile)
+    securityCashflow.to_excel(writer, outputSheet, index = False)
+    writer.save()
